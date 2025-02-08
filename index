@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vía Thần Tài 2025</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            border-bottom: 1px dotted #000;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <p><span class="tooltip">Nguồn cung<span class="tooltiptext">Supply source</span></span> <span class="tooltip">vàng miếng<span class="tooltiptext">gold bars</span></span>, <span class="tooltip">nhẫn trơn<span class="tooltiptext">plain rings</span></span> hay <span class="tooltip">Thần Tài 24K<span class="tooltiptext">God of Wealth 24K</span></span> năm nay không <span class="tooltip">dồi dào<span class="tooltiptext">abundant</span></span>, nhiều <span class="tooltip">doanh nghiệp<span class="tooltiptext">businesses</span></span> đẩy mạnh bán <span class="tooltip">nữ trang<span class="tooltiptext">jewelry</span></span> và sản phẩm <span class="tooltip">chế tác<span class="tooltiptext">crafted</span></span> 10K.</p>
+        <p>Ghi nhận của VnExpress tại các <span class="tooltip">thương hiệu lớn<span class="tooltiptext">major brands</span></span> cho thấy các mặt hàng <span class="tooltip">vàng bốn số 9<span class="tooltiptext">999.9 gold</span></span> như nhẫn trơn, miếng, Thần Tài trong dịp này khá <span class="tooltip">khan hiếm<span class="tooltiptext">scarce</span></span>. Một số đơn vị thậm chí <span class="tooltip">giới hạn<span class="tooltiptext">limit</span></span> số lượng mua dù chưa phải là ngày <span class="tooltip">giao dịch cao điểm nhất<span class="tooltiptext">peak trading day</span></span> - thường rơi vào mồng 10 tháng Giêng âm lịch, tức ngày 7/2.</p>
+        <p>Tại TP HCM, các chi nhánh của Tập đoàn Vàng bạc đá quý DOJI hiện bán nhẫn trơn hoặc sản phẩm vàng Thần Tài 24K giá tương đương với vàng miếng SJC, nhưng <span class="tooltip">giới hạn<span class="tooltiptext">limit</span></span> mỗi người mua tối đa 5 chỉ một ngày.</p>
+        <p>Trụ sở của Công ty Vàng bạc đá quý Sài Gòn (SJC) trên đường Nguyễn Thị Minh Khai, quận 3 cũng <span class="tooltip">giới hạn<span class="tooltiptext">limit</span></span> lượng mua mỗi người 2 chỉ vàng Thần Tài hoặc nhẫn trơn. Năm nay, sản phẩm riêng cho dịp Thần Tài của SJC gồm các loại vàng Thần Tài hoặc linh vật con rắn loại 1 chỉ.</p>
+        <p>Ba sản phẩm SJC tung ra dịp vía Thần Tài năm nay. Ảnh: Quỳnh Trang</p>
+        <p>Công ty Vàng bạc đá quý Phú Nhuận (PNJ) cũng cho hay năm nay không bán vàng tài lộc 999.9 hay vàng nhẫn như các năm trước, thay vào đó tập trung bán vàng trang sức 24K và vàng kỷ niệm.</p>
+        <p>Còn tại Mi Hồng - thương hiệu lâu đời tại địa bàn phía Nam, hiện chưa <span class="tooltip">giới hạn<span class="tooltiptext">limit</span></span> lượng mua nhẫn trơn và vàng miếng SJC. Từ chiều 5/2, nhiều khách hàng đã ghé cửa hàng trên đường Bùi Hữu Nghĩa (quận Bình Thạnh, TP HCM), trong đó đa phần là mua nữ trang cầu may dịp đầu năm.</p>
+        <p>Vàng kỷ niệm Ất Tỵ (vàng 10k) PNJ đẩy mạnh năm nay. Ảnh: PNJ</p>
+        <p>Tại Hà Nội, các nhà vàng tuy chưa <span class="tooltip">giới hạn<span class="tooltiptext">limit</span></span> lượng mua của mỗi khách, song vàng nhẫn vẫn khan hiếm. Bởi vậy, các đơn vị đang đẩy mạnh giới thiệu các loại vàng vỉ ép, linh vật hay sản phẩm có thêm tiền công chế tác.</p>
+        <p>Nhân viên của SJC tại Trần Nhân Tông chiều 5/2 cho biết cửa hàng này chỉ còn vài chiếc nhẫn trơn loại 2 chỉ và 5 chỉ, không còn nhẫn loại 1 chỉ.</p>
+        <p>Tại điểm bán hàng của Bảo Tín Minh Châu, Trần Nhân Tông - một trong số ít những thương hiệu vẫn có vàng nhẫn, khách phải lấy số thứ tự, chờ đến lượt mua khoảng nửa tiếng. Giá mặt hàng này tại đây được niêm yết ở mức 90,5 triệu đồng mỗi lượng, chỉ kém 500.000 đồng so với vàng SJC.</p>
+        <p>Nhiều khách hàng chờ mua vàng tại cửa hàng tại Bảo Tín Minh Châu trên đường Trần Nhân Tông (Hà Nội) chiều 5/2. Ảnh: Anh Tú</p>
+        <p>Anh Tuấn Vũ tại Vương Thừa Vũ, Thanh Xuân cùng bạn mua 5 vỉ vàng ép tại cửa hàng của DOJI ở Trần Nhân Tông để cầu may đầu năm với giá khoảng 455 triệu đồng. Anh Vũ cho biết đi mua vàng sớm vì lo giá tăng cao hơn sát ngày vía Thần Tài.</p>
+        <p>Nhìn chung, các thương hiệu lớn ít đẩy mạnh vàng nhẫn, miếng hay Thần Tài 24K trong mùa lễ hội năm nay. Điều này diễn ra trong bối cảnh nhiều doanh nghiệp chật vật xoay xở nguồn nguyên liệu thời gian qua. Hiện, doanh nghiệp không được cấp phép nhập khẩu vàng nguyên liệu theo đường chính ngạch, đồng thời kênh nhập lậu trái phép cũng bị cơ quan quản lý siết mạnh.</p>
+        <p>Do đó, nữ trang là mũi nhọn của hầu hết doanh nghiệp trong dịp vía Thần Tài 2025. Đại diện PNJ cho biết năm nay đã đầu tư mạnh cho mẫu mã và danh mục sản phẩm trang sức. Với nam, công ty cho ra bộ sưu tập gồm mặt dây chuyền, nhẫn, lắc tay... chế tác từ vàng 24K, vàng trắng 10K... Với nữ, doanh nghiệp này có bộ trang sức thường niên nhưng cải tiến về mẫu mã và chất liệu. Ngoài ra, hãng còn có vàng kỷ niệm khắc biểu tượng linh vật Ất Tỵ...</p>
+        <p>"Vàng trang sức là nhóm sản phẩm chủ lực của doanh nghiệp trong dịp này khi người dân thay đổi thói quen mua sắm, chi tiêu hợp lý", đại diện PNJ nói.</p>
+        <p>Doanh nghiệp cho biết thêm, kênh bán hàng trực tuyến qua trang web ghi nhận hàng nghìn sản phẩm trang sức 24K được đặt mua trong vài ngày Tết. PNJ dự báo nhu cầu có thể tiếp tục tăng mạnh khi cận ngày vía Thần Tài.</p>
+    </div>
+</body>
+</html>
