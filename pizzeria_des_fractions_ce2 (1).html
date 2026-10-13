@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Pizzeria des Fractions - CE2</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Confettis pour encourager l'élève -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Polices lisibles et ludiques -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka', 'Nunito', sans-serif;
+            background-color: #FFFDF5;
+        }
+        .pizza-slice {
+            cursor: pointer;
+            transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.18s ease;
+            transform-origin: 160px 160px;
+        }
+        .pizza-slice:hover {
+            filter: brightness(1.1);
+            transform: scale(1.035);
+        }
+        .pizza-slice.selected {
+            filter: drop-shadow(0px 8px 14px rgba(234, 88, 12, 0.45));
+            transform: scale(1.055);
+        }
+        .fraction-bar {
+            height: 3px;
+            background-color: #1E293B;
+            border-radius: 9999px;
+            margin: 2px auto;
+        }
+        .bounce-in {
+            animation: bounceIn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between selection:bg-amber-200">
+
+    <!-- En-tête / Barre de navigation -->
+    <header class="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-md border-b-4 border-amber-700 sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl sm:text-4xl animate-pulse">🍕</span>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-black tracking-wide flex items-center gap-2">
+                        La Pizzeria des Fractions
+                        <span class="bg-amber-800 text-amber-100 text-xs px-2.5 py-0.5 rounded-full uppercase tracking-wider font-extrabold shadow-sm">CE2</span>
+                    </h1>
+                    <p class="text-xs sm:text-sm text-amber-100 font-medium">Découpe, calcule et réussis les missions de pizzaiolo !</p>
+                </div>
+            </div>
+
+            <!-- Onglets -->
+            <div class="flex bg-amber-700/60 p-1.5 rounded-2xl gap-1 shadow-inner flex-wrap">
+                <button id="btn-tab-learn" onclick="switchTab('learn')" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-white text-amber-800 shadow-sm flex items-center gap-1.5">
+                    <span>🔬</span> Atelier Découverte
+                </button>
+                <button id="btn-tab-game" onclick="switchTab('game')" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-white hover:bg-amber-600/60 flex items-center gap-1.5">
+                    <span>🎯</span> Missions Pizzaiolo
+                </button>
+                <button id="btn-tab-eval" onclick="switchTab('eval')" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-white hover:bg-amber-600/60 flex items-center gap-1.5">
+                    <span>📋</span> Bilan CE2 (Pages 3 & 4)
+                </button>
+                <button id="btn-tab-grand-defi" onclick="switchTab('grand-defi')" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-white hover:bg-amber-600/60 flex items-center gap-1.5 bg-gradient-to-r from-red-600 to-rose-600 animate-pulse">
+                    <span>⚡</span> Défi Top Chef (> 1 & Calculs)
+                </button>
+                <button id="btn-tab-help" onclick="switchTab('help')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-white hover:bg-amber-600/60 flex items-center gap-1">
+                    <span>💡</span> Aide-Mémoire
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+        <!-- ================= ONGLET 1 : ATELIER DÉCOUVERTE LIBRE ================= -->
+        <section id="tab-learn" class="space-y-6">
+            <div class="bg-white rounded-3xl p-5 sm:p-8 shadow-lg border-2 border-amber-100 flex flex-col md:flex-row gap-8 items-center">
+                
+                <!-- Zone Pizza Interactive SVG -->
+                <div class="w-full md:w-1/2 flex flex-col items-center">
+                    <div class="relative bg-gradient-to-b from-amber-50 to-orange-50/50 p-5 rounded-3xl border-2 border-amber-200/80 shadow-inner flex items-center justify-center">
+                        <svg id="pizza-svg" viewBox="0 0 320 320" class="w-64 h-64 sm:w-80 sm:h-80 select-none"></svg>
+                    </div>
+                    <p class="text-xs sm:text-sm text-amber-800 font-bold mt-3 text-center flex items-center gap-1 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+                        👆 <span>Touche ou clique sur les parts pour les garnir ou les retirer !</span>
+                    </p>
+                </div>
+
+                <!-- Commandes & Écriture Mathématique -->
+                <div class="w-full md:w-1/2 flex flex-col gap-5">
+                    <div>
+                        <span class="text-xs font-black uppercase tracking-wider text-amber-700 bg-amber-100 px-3 py-1 rounded-full">Étape 1 : Le partage</span>
+                        <h2 class="text-lg sm:text-xl font-extrabold mt-1 text-slate-800">En combien de parts découper la pizza ?</h2>
+                        <p class="text-xs text-slate-500 mb-3">C'est le <strong>dénominateur</strong> (le nombre total de parts égales).</p>
+                        
+                        <!-- Sélecteur de découpage -->
+                        <div class="grid grid-cols-4 sm:grid-cols-7 gap-1.5" id="slice-buttons-group">
+                            <button onclick="setPizzaSlices(2)" class="slice-count-btn bg-amber-50 border-2 border-amber-300 text-amber-900 hover:bg-amber-100 p-1.5 rounded-xl font-bold text-center active:scale-95 transition">
+                                <span class="text-[10px] block text-slate-500 font-semibold">Demis</span>2
+                            </button>
+                            <button onclick="setPizzaSlices(3)" class="slice-count-btn bg-amber-50 border-2 border-amber-300 text-amber-900 hover:bg-amber-100 p-1.5 rounded-xl font-bold text-center active:scale-95 transition">
+                                <span class="text-[10px] block text-slate-500 font-semibold">Tiers</span>3
+                            </button>
+                            <button onclick="setPizzaSlices(4)" class="slice-count-btn bg-amber-500 border-2 border-amber-600 text-white shadow-md p-1.5 rounded-xl font-bold text-center active:scale-95 transition">
+                                <span class="text-[10px] block text-amber-100 font-semibold">Quarts</span>4
+                            </button>
+                            <button onclick="setPizzaSlices(5)" class="slice-count-btn bg-amber-50 border-2 border-amber-300 text-amber-900 hover:bg-amber-100 p-1.5 rounded-xl font-bold text-center active:scale-95 transition">
+                                <span class="text-[10px] block text-slate-500 font-semibold">Cinq.</span>5
+                            </button>
+                            <button onclick="setPizzaSlices(6)" class="slice-count-btn bg-amber-50 border-2 border-amber-300 text-amber-900 hover:bg-amber-100 p-1.5 rounded-xl font-bold text-center active:scale-95 transition">
+                                <span class="text-[10px] block text-slate-500 font-semibold">Sixièmes</span>6
+                            </button>
+                            <button onclick="setPizzaSlices(8)" class="slice-count-btn bg-amber-50 border-2 border-amber-300 text-amber-900 hover:bg-amber-100 p-1.5 rounded-xl font-bold text-center active:scale-95 transition">
+                                <span class="text-[10px] block text-slate-500 font-semibold">Huitièmes</span>8
+                            </button>
+                            <button onclick="setPizzaSlices(10)" class="slice-count-btn bg-amber-50 border-2 border-amber-300 text-amber-900 hover:bg-amber-100 p-1.5 rounded-xl font-bold text-center active:scale-95 transition">
+                                <span class="text-[10px] block text-slate-500 font-semibold">Dixièmes</span>10
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Carte fraction -->
+                    <div class="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-3xl p-4 sm:p-5 flex items-center justify-around shadow-inner">
+                        <div class="text-center">
+                            <div class="text-[11px] uppercase font-black text-amber-800 mb-1">Fraction</div>
+                            <div class="inline-flex flex-col items-center bg-white border-2 border-amber-300 rounded-2xl px-5 py-2 shadow-sm min-w-[85px]">
+                                <span id="num-display" class="text-3xl font-black text-amber-600">1</span>
+                                <div class="fraction-bar w-full"></div>
+                                <span id="den-display" class="text-3xl font-black text-slate-800">4</span>
+                            </div>
+                        </div>
+
+                        <div class="text-center max-w-[210px]">
+                            <span class="text-[11px] uppercase font-extrabold text-slate-400">Lecture en mots</span>
+                            <div id="fraction-words" class="text-xl sm:text-2xl font-black text-orange-600 mt-1 capitalize leading-tight">
+                                un quart
+                            </div>
+                            <div id="fraction-percent" class="text-xs font-bold text-slate-500 mt-1">
+                                (1 part choisie sur 4)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Guide mémo -->
+                    <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 text-sm space-y-1.5">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-amber-500 flex-shrink-0"></span>
+                            <p><strong>Numérateur (en haut) :</strong> <span id="explain-num" class="text-amber-700 font-black">1</span> part garnie.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-slate-700 flex-shrink-0"></span>
+                            <p><strong>Dénominateur (en bas) :</strong> <span id="explain-den" class="text-slate-800 font-black">4</span> parts égales en tout.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button onclick="selectAllSlices()" class="flex-1 bg-amber-100 hover:bg-amber-200 text-amber-800 text-xs sm:text-sm font-black py-2.5 px-3 rounded-xl transition">
+                            Toute la pizza (1 unité) 🍕
+                        </button>
+                        <button onclick="clearSlices()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-black py-2.5 px-3 rounded-xl transition">
+                            Vider (0 part) 🔄
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= ONGLET 2 : MISSIONS DU PIZZAIOLO ================= -->
+        <section id="tab-game" class="hidden space-y-6">
+            
+            <!-- Tableau de bord du jeu -->
+            <div class="bg-white rounded-3xl p-4 sm:p-6 shadow-md border-2 border-amber-200 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-2xl shadow-md">
+                        👨‍🍳
+                    </div>
+                    <div>
+                        <h2 class="font-black text-lg text-slate-800">Commandes de la Pizzeria</h2>
+                        <p class="text-xs text-slate-500 font-semibold">Garnis les parts selon la demande des clients !</p>
+                    </div>
+                </div>
+
+                <!-- Sélecteur de niveau -->
+                <div class="flex items-center bg-slate-100 p-1 rounded-2xl gap-1 text-xs font-black border border-slate-200">
+                    <button id="lvl-btn-easy" onclick="changeDifficulty('easy')" class="px-3 py-1.5 rounded-xl text-slate-600 hover:text-amber-700 transition">
+                        🌱 Facile
+                    </button>
+                    <button id="lvl-btn-medium" onclick="changeDifficulty('medium')" class="px-3 py-1.5 rounded-xl text-slate-600 hover:text-amber-700 transition">
+                        ⚡ Moyen
+                    </button>
+                    <button id="lvl-btn-hard" onclick="changeDifficulty('hard')" class="px-3 py-1.5 rounded-xl text-slate-600 hover:text-amber-700 transition">
+                        🔥 Défi Expert
+                    </button>
+                    <button id="lvl-btn-legend" onclick="changeDifficulty('legend')" class="px-3 py-1.5 rounded-xl bg-red-600 text-white shadow-sm transition">
+                        👑 Maître Étoilé (> 1)
+                    </button>
+                </div>
+
+                <!-- Score et Compteur -->
+                <div class="flex items-center gap-3">
+                    <div class="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-2 flex items-center gap-2">
+                        <span class="text-xl">⭐</span>
+                        <div>
+                            <div class="text-[10px] uppercase font-bold text-amber-600">Score</div>
+                            <div id="game-score" class="font-black text-amber-900 text-lg">0 pt</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-orange-50 border border-orange-200 rounded-2xl px-4 py-2 flex items-center gap-2">
+                        <span class="text-xl">📦</span>
+                        <div>
+                            <div class="text-[10px] uppercase font-bold text-orange-600">Commande</div>
+                            <div id="game-question-num" class="font-black text-orange-900 text-lg">1 / 5</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carte de l'exercice interactif -->
+            <div id="game-card" class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-2 border-amber-100 relative overflow-hidden">
+                <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
+                    <div class="w-16 h-16 rounded-full bg-orange-100 border-2 border-orange-300 flex items-center justify-center text-3xl flex-shrink-0 shadow-sm" id="customer-avatar">
+                        👧
+                    </div>
+                    <div class="bg-amber-50 border-2 border-amber-200 rounded-3xl p-4 rounded-tl-sm relative w-full shadow-sm">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs uppercase font-black text-amber-700 tracking-wider">Commande du client :</span>
+                            <span id="badge-difficulty-tag" class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-200 text-amber-800">Facile</span>
+                        </div>
+                        <div id="game-instruction" class="text-base sm:text-lg font-black text-slate-800 leading-relaxed">
+                            <!-- Rempli par JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <div id="game-interactive-area" class="flex flex-col items-center justify-center gap-6 my-4">
+                    <div id="game-pizza-container" class="relative bg-amber-50/70 p-4 rounded-3xl border border-amber-200 shadow-inner flex flex-wrap items-center justify-center gap-4">
+                        <svg id="game-pizza-svg" viewBox="0 0 320 320" class="w-52 h-52 sm:w-64 sm:h-64 select-none"></svg>
+                        <div id="game-pizza-svg2-wrapper" class="hidden flex flex-col items-center">
+                            <span class="text-xs font-black text-amber-800 bg-amber-200 px-2 py-0.5 rounded-full mb-1">Pizza n°2</span>
+                            <svg id="game-pizza-svg2" viewBox="0 0 320 320" class="w-52 h-52 sm:w-64 sm:h-64 select-none"></svg>
+                        </div>
+                    </div>
+
+                    <div id="game-choices-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 w-full max-w-xl hidden">
+                        <!-- Rempli par JavaScript -->
+                    </div>
+                </div>
+
+                <div id="game-actions" class="flex flex-col sm:flex-row justify-center gap-3 mt-6">
+                    <button id="btn-validate-slice" onclick="validateSliceOrder()" class="bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-black text-base px-8 py-3.5 rounded-2xl shadow-lg transition flex items-center justify-center gap-2">
+                        <span>✨</span> Servir la pizza au client !
+                    </button>
+                    <button id="btn-next-order" onclick="nextQuestion()" class="hidden bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-black text-base px-8 py-3.5 rounded-2xl shadow-lg transition flex items-center justify-center gap-2">
+                        <span>Commande Suivante</span> ➡️
+                    </button>
+                </div>
+
+                <div id="game-feedback" class="mt-4 p-4 rounded-2xl text-center font-bold text-sm hidden transition-all duration-300">
+                    <!-- Rempli par JavaScript -->
+                </div>
+            </div>
+
+            <!-- Écran de fin de partie -->
+            <div id="game-end-screen" class="hidden bg-white rounded-3xl p-8 sm:p-12 shadow-xl border-4 border-amber-300 text-center space-y-6">
+                <div class="text-6xl animate-bounce">🏆</div>
+                <h3 class="text-3xl font-black text-amber-900">Bravo, Maître Pizzaiolo !</h3>
+                <p id="game-final-message" class="text-slate-600 text-lg max-w-md mx-auto font-medium">
+                    Tu as terminé toutes les commandes avec brio !
+                </p>
+                <div class="inline-block bg-amber-100 border-2 border-amber-300 px-6 py-3 rounded-2xl">
+                    <span class="text-xs uppercase font-extrabold text-amber-700 block">Score final</span>
+                    <span id="final-score-val" class="text-3xl font-black text-amber-900">5 / 5</span>
+                </div>
+                <div class="flex flex-wrap justify-center gap-3">
+                    <button onclick="restartGame()" class="bg-amber-500 hover:bg-amber-600 text-white font-black px-6 py-3 rounded-2xl shadow-lg text-base active:scale-95 transition">
+                        Rejouer ce niveau 🔄
+                    </button>
+                    <button onclick="nextLevelOrRestart()" id="btn-next-level" class="bg-emerald-500 hover:bg-emerald-600 text-white font-black px-6 py-3 rounded-2xl shadow-lg text-base active:scale-95 transition">
+                        Passer au niveau supérieur 🚀
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ================= ONGLET 3 : CAHIER D'EXERCICES CE2 (PAGES 3 & 4) ================= -->
+        <section id="tab-eval" class="hidden space-y-8">
+            
+            <div class="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white rounded-3xl p-6 shadow-lg">
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="text-3xl">📋</span>
+                    <h2 class="text-2xl font-black">Cahier d'Exercices CE2 : Fractions & Pizzas</h2>
+                </div>
+                <p class="text-sm text-amber-100 font-medium">
+                    Exercices interactifs fidèles aux pages 3 & 4 du bilan CE2 : équivalences de parts, calculs avec les fractions et comparaison avec l'unité 1 !
+                </p>
+            </div>
+
+            <!-- EXERCICE TYPE PAGE 3 : Fractions égales / Pizzas équivalentes -->
+            <div class="bg-white rounded-3xl p-6 sm:p-7 shadow-lg border-2 border-amber-100">
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-4 border-amber-100 mb-6">
+                    <div>
+                        <span class="bg-purple-100 text-purple-800 text-xs px-3 py-1 rounded-full font-black uppercase">Exercice Page 3</span>
+                        <h3 class="text-xl font-black text-slate-800 mt-1">🍕 Trouve les Pizzas Jumelles (Fractions Égales)</h3>
+                        <p class="text-xs sm:text-sm text-slate-500">Même découpées différemment, elles représentent <strong>la même part de pizza</strong> !</p>
+                    </div>
+                    <span class="text-sm font-black bg-purple-50 text-purple-700 px-3.5 py-1.5 rounded-xl border border-purple-200" id="equiv-score-badge">0 / 4 paires trouvées</span>
+                </div>
+
+                <p class="text-xs font-bold text-slate-600 mb-4 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    👉 <em>Consigne :</em> Clique sur une pizza de la <strong>Colonne A</strong>, puis clique sur sa fraction équivalente dans la <strong>Colonne B</strong> pour les réunir !
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Colonne A -->
+                    <div class="space-y-3">
+                        <div class="text-center font-black text-xs uppercase tracking-wider text-amber-800 bg-amber-100 py-1.5 rounded-xl">Colonne A</div>
+                        <div id="col-a-cards" class="space-y-3">
+                            <!-- Généré par JS -->
+                        </div>
+                    </div>
+
+                    <!-- Colonne B -->
+                    <div class="space-y-3">
+                        <div class="text-center font-black text-xs uppercase tracking-wider text-orange-800 bg-orange-100 py-1.5 rounded-xl">Colonne B</div>
+                        <div id="col-b-cards" class="space-y-3">
+                            <!-- Généré par JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div id="equiv-feedback" class="mt-4 p-3 rounded-2xl text-center font-bold text-sm hidden"></div>
+            </div>
+
+            <!-- EXERCICE TYPE PAGE 4 - PARTIE A : Additions & Soustractions de fractions -->
+            <div class="bg-white rounded-3xl p-6 sm:p-7 shadow-lg border-2 border-amber-100">
+                <div class="border-b pb-4 border-amber-100 mb-6">
+                    <span class="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full font-black uppercase">Exercice Page 4 - Partie 1</span>
+                    <h3 class="text-xl font-black text-slate-800 mt-1">➕ ➖ Calcule avec les parts de Pizza</h3>
+                    <p class="text-xs sm:text-sm text-slate-500">Quand les parts sont identiques (même dénominateur), on calcule simplement les numérateurs !</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
+                    <!-- Problème 1 : Addition (Page 4 a) -->
+                    <div class="bg-amber-50/70 p-5 rounded-3xl border-2 border-amber-200 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs font-black bg-amber-200 text-amber-900 px-2.5 py-0.5 rounded-md">a) Addition</span>
+                                <span class="text-xs text-slate-500 font-bold">Modèle fiche : 2/6 + 3/6</span>
+                            </div>
+                            <div class="flex items-center justify-center gap-4 my-3">
+                                <div class="w-24 h-24 bg-white p-1 rounded-2xl border border-amber-300 shadow-sm flex items-center justify-center">
+                                    <svg id="calc-svg-add" viewBox="0 0 320 320" class="w-full h-full"></svg>
+                                </div>
+                                <div class="flex items-center text-xl font-black text-slate-800 gap-2">
+                                    <span class="inline-flex flex-col items-center"><span class="text-amber-600">2</span><span class="h-0.5 w-4 bg-slate-800"></span><span>6</span></span>
+                                    <span>+</span>
+                                    <span class="inline-flex flex-col items-center"><span class="text-amber-600">3</span><span class="h-0.5 w-4 bg-slate-800"></span><span>6</span></span>
+                                    <span>=</span>
+                                    <div class="flex flex-col items-center gap-1 bg-white p-2 rounded-xl border-2 border-amber-300 shadow-sm">
+                                        <input type="number" id="calc-add-num" class="w-10 text-center font-black text-lg border rounded-lg p-1 bg-amber-50" placeholder="?">
+                                        <div class="h-0.5 w-8 bg-slate-800"></div>
+                                        <input type="number" id="calc-add-den" class="w-10 text-center font-black text-lg border rounded-lg p-1 bg-slate-100" placeholder="6" value="6">
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-600 text-center font-medium">Léa mange <strong>2 parts</strong> de pizza, puis Tom en mange <strong>3 parts</strong> sur les 6 parts.</p>
+                        </div>
+                        <div class="mt-4 flex flex-col gap-2">
+                            <button onclick="checkCalcProblem('add')" class="bg-amber-500 hover:bg-amber-600 text-white font-black text-sm py-2 px-4 rounded-xl shadow transition">
+                                Vérifier l'addition ✅
+                            </button>
+                            <div id="feedback-calc-add" class="text-xs font-bold text-center hidden py-1"></div>
+                        </div>
+                    </div>
+
+                    <!-- Problème 2 : Soustraction (Page 4 b) -->
+                    <div class="bg-orange-50/70 p-5 rounded-3xl border-2 border-orange-200 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs font-black bg-orange-200 text-orange-900 px-2.5 py-0.5 rounded-md">b) Soustraction</span>
+                                <span class="text-xs text-slate-500 font-bold">Modèle fiche : 7/10 - 2/10</span>
+                            </div>
+                            <div class="flex items-center justify-center gap-4 my-3">
+                                <div class="w-24 h-24 bg-white p-1 rounded-2xl border border-orange-300 shadow-sm flex items-center justify-center">
+                                    <svg id="calc-svg-sub" viewBox="0 0 320 320" class="w-full h-full"></svg>
+                                </div>
+                                <div class="flex items-center text-xl font-black text-slate-800 gap-2">
+                                    <span class="inline-flex flex-col items-center"><span class="text-orange-600">7</span><span class="h-0.5 w-4 bg-slate-800"></span><span>10</span></span>
+                                    <span>-</span>
+                                    <span class="inline-flex flex-col items-center"><span class="text-orange-600">2</span><span class="h-0.5 w-4 bg-slate-800"></span><span>10</span></span>
+                                    <span>=</span>
+                                    <div class="flex flex-col items-center gap-1 bg-white p-2 rounded-xl border-2 border-orange-300 shadow-sm">
+                                        <input type="number" id="calc-sub-num" class="w-10 text-center font-black text-lg border rounded-lg p-1 bg-orange-50" placeholder="?">
+                                        <div class="h-0.5 w-8 bg-slate-800"></div>
+                                        <input type="number" id="calc-sub-den" class="w-10 text-center font-black text-lg border rounded-lg p-1 bg-slate-100" placeholder="10" value="10">
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-600 text-center font-medium">Le pizzaiolo avait préparé <strong>7 parts</strong> sur 10, il en retire <strong>2 parts</strong>.</p>
+                        </div>
+                        <div class="mt-4 flex flex-col gap-2">
+                            <button onclick="checkCalcProblem('sub')" class="bg-orange-500 hover:bg-orange-600 text-white font-black text-sm py-2 px-4 rounded-xl shadow transition">
+                                Vérifier la soustraction ✅
+                            </button>
+                            <div id="feedback-calc-sub" class="text-xs font-bold text-center hidden py-1"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- EXERCICE TYPE PAGE 4 - PARTIE B : Comparer à l'Unité (< 1 ou = 1) -->
+            <div class="bg-white rounded-3xl p-6 sm:p-7 shadow-lg border-2 border-amber-100">
+                <div class="border-b pb-4 border-amber-100 mb-6">
+                    <span class="bg-emerald-100 text-emerald-800 text-xs px-3 py-1 rounded-full font-black uppercase">Exercice Page 4 - Partie 2</span>
+                    <h3 class="text-xl font-black text-slate-800 mt-1">⚖️ Complète avec « &lt; » (plus petit), « = » (égal) ou « &gt; » (plus grand que 1)</h3>
+                    <p class="text-xs sm:text-sm text-slate-500">Quand le numérateur dépasse le dénominateur (comme 7/4 ou 9/3), on a <strong>plus d'une pizza entière</strong> (&gt; 1) !</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4" id="compare-unit-cards">
+                    <!-- Rempli par JavaScript : 3/6, 4/4, 10/10, 5/8 -->
+                </div>
+
+                <div class="mt-6 flex flex-wrap justify-between items-center bg-slate-50 p-4 rounded-2xl border border-slate-200 gap-3">
+                    <span class="text-xs text-slate-600 font-bold">Sélectionne le bon signe pour chaque pizza :</span>
+                    <button onclick="checkCompareUnitAnswers()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-black px-6 py-2.5 rounded-xl shadow transition active:scale-95 text-sm">
+                        Valider mes comparaisons ⭐
+                    </button>
+                </div>
+                <div id="compare-unit-feedback" class="mt-3 p-3 rounded-2xl text-center font-bold text-sm hidden"></div>
+            </div>
+
+        </section>
+
+        <!-- ================= ONGLET NOUVEAU : DÉFI TOP CHEF (PAGE 4 INTENSIVE) ================= -->
+        <section id="tab-grand-defi" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-red-600 via-rose-600 to-orange-600 text-white rounded-3xl p-6 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                    <div class="inline-flex items-center gap-2 bg-black/20 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-2">
+                        🔥 Mode Haute Voltige • CE2 / CM1
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-black">Le Grand Défi Top Chef des Fractions</h2>
+                    <p class="text-xs sm:text-sm text-rose-100 font-medium max-w-xl mt-1">
+                        Résous en série les calculs authentiques de la <strong>page 4 du bilan</strong> : additions, soustractions et décompositions avec fractions supérieures à 1 ($\frac{9}{3} - \frac{3}{3}$, $\frac{7}{2} - \frac{3}{2}$, etc.) !
+                    </p>
+                </div>
+                <div class="flex items-center gap-4 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20">
+                    <div class="text-center">
+                        <span class="text-[10px] uppercase font-bold block text-rose-200">Série réussie</span>
+                        <span id="streak-counter" class="text-3xl font-black text-amber-300">0 🔥</span>
+                    </div>
+                    <div class="h-8 w-px bg-white/20"></div>
+                    <div class="text-center">
+                        <span class="text-[10px] uppercase font-bold block text-rose-200">Score Top Chef</span>
+                        <span id="topchef-score" class="text-3xl font-black text-white">0 pt</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-2 border-rose-200 flex flex-col items-center">
+                <div class="w-full max-w-2xl bg-rose-50 border-2 border-rose-300 rounded-3xl p-6 mb-6">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs font-black uppercase text-rose-700 bg-rose-200 px-3 py-1 rounded-full">Calcul en cours</span>
+                        <span id="topchef-step-badge" class="text-xs font-bold text-slate-500">Exercice 1 sur 10</span>
+                    </div>
+
+                    <!-- Enoncé calcul -->
+                    <div class="text-center py-4">
+                        <div id="topchef-expression" class="text-3xl sm:text-4xl font-black text-slate-800 flex items-center justify-center gap-3">
+                            <!-- Rempli par JavaScript -->
+                        </div>
+                        <p id="topchef-hint" class="text-xs text-rose-800 font-bold mt-3">
+                            Astuce : Les dénominateurs sont identiques ! Additionne ou soustrais les parts (numérateurs).
+                        </p>
+                    </div>
+
+                    <!-- Visualisation pizza multiple -->
+                    <div id="topchef-visual" class="flex flex-wrap items-center justify-center gap-4 mt-2 py-3 bg-white/80 rounded-2xl border border-rose-200">
+                        <!-- SVGs générés dynamiquement -->
+                    </div>
+
+                    <!-- Saisie de la réponse -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
+                        <div class="flex items-center gap-2 bg-white px-4 py-2.5 rounded-2xl border-2 border-rose-300 shadow-md">
+                            <span class="text-sm font-black text-slate-600">Réponse =</span>
+                            <div class="flex flex-col items-center gap-1">
+                                <input type="number" id="topchef-input-num" class="w-14 text-center font-black text-2xl border-2 border-rose-400 rounded-xl p-1 bg-rose-50/50" placeholder="?">
+                                <div class="h-0.5 w-10 bg-slate-800"></div>
+                                <input type="number" id="topchef-input-den" class="w-14 text-center font-black text-2xl border-2 border-slate-300 rounded-xl p-1 bg-slate-50" placeholder="?">
+                            </div>
+                        </div>
+
+                        <button onclick="checkTopChefAnswer()" class="bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-black text-base px-6 py-3.5 rounded-2xl shadow-lg transition flex items-center gap-2">
+                            <span>Vérifier mon calcul</span> 🎯
+                        </button>
+                    </div>
+
+                    <div id="topchef-feedback" class="mt-4 p-4 rounded-2xl text-center font-bold text-sm hidden"></div>
+                </div>
+
+                <div class="w-full max-w-2xl flex justify-between items-center text-xs text-slate-500 font-semibold px-2">
+                    <button onclick="newTopChefQuestion()" class="text-rose-700 underline hover:text-rose-900 font-black">
+                        Passer à une autre question ➡️
+                    </button>
+                    <span>Exercices issus des équivalences Page 4 CE2</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= ONGLET 4 : AIDE-MÉMOIRE CE2 ================= -->
+        <section id="tab-help" class="hidden space-y-6">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-lg border-2 border-amber-100">
+                <h2 class="text-2xl font-black text-amber-900 mb-4 flex items-center gap-2">
+                    <span>📖</span> La Recette Secrète des Fractions au CE2
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div class="bg-amber-50/80 p-5 rounded-3xl border-2 border-amber-200">
+                        <h3 class="text-lg font-black text-amber-800 mb-2">1. Comment lire une fraction ?</h3>
+                        <div class="flex items-center gap-4 bg-white p-4 rounded-2xl border border-amber-200 my-3">
+                            <div class="text-center font-black px-3 py-1 bg-amber-100 rounded-xl">
+                                <span class="text-2xl text-amber-600 block">3</span>
+                                <div class="fraction-bar w-8"></div>
+                                <span class="text-2xl text-slate-800 block">4</span>
+                            </div>
+                            <div class="text-xs space-y-1.5 text-slate-700">
+                                <p><strong class="text-amber-600">3 (Numérateur) :</strong> Le nombre de parts que je prends ou colorie.</p>
+                                <p><strong class="text-slate-800">4 (Dénominateur) :</strong> Le nombre <em>total</em> de parts égales découpées.</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-amber-900 italic font-semibold">💡 <strong>Astuce mémo :</strong> Le <strong>N</strong>umérateur est en haut (comme un <strong>N</strong>UAGE), le <strong>D</strong>énominateur est en bas (il <strong>D</strong>ESCEND au sol) !</p>
+                    </div>
+
+                    <div class="bg-orange-50/80 p-5 rounded-3xl border-2 border-orange-200">
+                        <h3 class="text-lg font-black text-orange-800 mb-2">2. Le vocabulaire du CE2</h3>
+                        <div class="space-y-2 text-xs sm:text-sm">
+                            <div class="flex justify-between items-center bg-white p-2.5 rounded-xl border border-orange-200">
+                                <span>Partagée en <strong>2</strong> parts :</span>
+                                <span class="font-bold text-orange-600">un demi (1/2)</span>
+                            </div>
+                            <div class="flex justify-between items-center bg-white p-2.5 rounded-xl border border-orange-200">
+                                <span>Partagée en <strong>3</strong> parts :</span>
+                                <span class="font-bold text-orange-600">un tiers (1/3)</span>
+                            </div>
+                            <div class="flex justify-between items-center bg-white p-2.5 rounded-xl border border-orange-200">
+                                <span>Partagée en <strong>4</strong> parts :</span>
+                                <span class="font-bold text-orange-600">un quart (1/4)</span>
+                            </div>
+                            <div class="flex justify-between items-center bg-white p-2.5 rounded-xl border border-orange-200">
+                                <span>Toutes les parts sélectionnées (ex: 4/4) :</span>
+                                <span class="font-black text-emerald-600">l'unité complète (1)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-3xl p-6 shadow-md">
+                    <h3 class="text-lg font-black mb-1">🌟 Astuce Équivalences & Fractions Égales</h3>
+                    <p class="text-sm text-amber-50 leading-relaxed font-medium">
+                        • <span class="font-bold text-white">2/4</span> c'est la même quantité que <span class="font-bold text-white">1/2</span> !<br>
+                        • <span class="font-bold text-white">2/8</span> c'est pareil que <span class="font-bold text-white">1/4</span> !<br>
+                        • Dès que le numérateur est la moitié du dénominateur (comme 3/6 ou 5/10), on a exactement une <strong>demi-pizza</strong> !
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-amber-100 border-t border-amber-200 py-4 text-center text-xs text-amber-800 font-semibold">
+        <p>Atelier Mathématiques CE2 • Les Fractions au Cycle 2 / Cycle 3 🍕</p>
+    </footer>
+
+    <script>
+        /* Synthétiseur Web Audio sans dépendance externe */
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            try {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.1);
+                    osc.frequency.setValueAtTime(783.99, now + 0.2);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.linearRampToValueAtTime(160, now + 0.2);
+                    gain.gain.setValueAtTime(0.18, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                }
+            } catch (e) {
+                console.warn('Audio non actif', e);
+            }
+        }
+
+        function switchTab(tab) {
+            playSound('click');
+            ['learn', 'game', 'eval', 'grand-defi', 'help'].forEach(t => {
+                const el = document.getElementById('tab-' + t);
+                const btn = document.getElementById('btn-tab-' + t);
+                if (t === tab) {
+                    el.classList.remove('hidden');
+                    btn.classList.add('bg-white', 'text-amber-800', 'shadow-sm');
+                    btn.classList.remove('text-white', 'hover:bg-amber-600/60');
+                } else {
+                    el.classList.add('hidden');
+                    btn.classList.remove('bg-white', 'text-amber-800', 'shadow-sm');
+                    btn.classList.add('text-white', 'hover:bg-amber-600/60');
+                }
+            });
+
+            if (tab === 'game' && currentQuestionIndex === 0 && !gameStarted) {
+                loadQuestion();
+                gameStarted = true;
+            } else if (tab === 'eval' && !evalInitialized) {
+                initEvalExercises();
+                evalInitialized = true;
+            } else if (tab === 'grand-defi' && !topChefInitialized) {
+                initTopChef();
+                topChefInitialized = true;
+            }
+        }
+
+        let totalSlices = 4;
+        let selectedSlices = new Set([0]);
+
+        const fractionNames = {
+            2: { 1: "un demi", 2: "deux demis (l'unité entière 1)" },
+            3: { 1: "un tiers", 2: "deux tiers", 3: "trois tiers (l'unité entière 1)" },
+            4: { 1: "un quart", 2: "deux quarts (la moitié 1/2)", 3: "trois quarts", 4: "quatre quarts (l'unité entière 1)" },
+            5: { 1: "un cinquième", 2: "deux cinquièmes", 3: "trois cinquièmes", 4: "quatre cinquièmes", 5: "cinq cinquièmes (l'unité entière 1)" },
+            6: { 1: "un sixième", 2: "deux sixièmes (un tiers 1/3)", 3: "trois sixièmes (la moitié 1/2)", 4: "quatre sixièmes", 5: "cinq sixièmes", 6: "six sixièmes (l'unité 1)" },
+            8: { 1: "un huitième", 2: "deux huitièmes (un quart 1/4)", 3: "trois huitièmes", 4: "quatre huitièmes (la moitié 1/2)", 5: "cinq huitièmes", 6: "six huitièmes (trois quarts 3/4)", 7: "sept huitièmes", 8: "huit huitièmes (l'unité 1)" },
+            10: { 1: "un dixième", 2: "deux dixièmes (un cinquième 1/5)", 3: "trois dixièmes", 4: "quatre dixièmes", 5: "cinq dixièmes (la moitié 1/2)", 6: "six dixièmes", 7: "sept dixièmes", 8: "huit dixièmes", 9: "neuf dixièmes", 10: "dix dixièmes (l'unité 1)" }
+        };
+
+        function renderPizzaSVG(svgElement, total, selectedSet, onSliceClick) {
+            svgElement.innerHTML = '';
+            const cx = 160;
+            const cy = 160;
+            const r = 135;
+            const crustR = 145;
+
+            // Pâte dorée
+            const crustCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            crustCircle.setAttribute("cx", cx);
+            crustCircle.setAttribute("cy", cy);
+            crustCircle.setAttribute("r", crustR);
+            crustCircle.setAttribute("fill", "#D97706");
+            crustCircle.setAttribute("stroke", "#B45309");
+            crustCircle.setAttribute("stroke-width", "6");
+            svgElement.appendChild(crustCircle);
+
+            // Base fondante
+            const baseCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            baseCircle.setAttribute("cx", cx);
+            baseCircle.setAttribute("cy", cy);
+            baseCircle.setAttribute("r", r);
+            baseCircle.setAttribute("fill", "#FEEBC8");
+            svgElement.appendChild(baseCircle);
+
+            // Parts découpées
+            for (let i = 0; i < total; i++) {
+                const startAngle = (i * 2 * Math.PI / total) - (Math.PI / 2);
+                const endAngle = ((i + 1) * 2 * Math.PI / total) - (Math.PI / 2);
+
+                const x1 = cx + r * Math.cos(startAngle);
+                const y1 = cy + r * Math.sin(startAngle);
+                const x2 = cx + r * Math.cos(endAngle);
+                const y2 = cy + r * Math.sin(endAngle);
+
+                const isSelected = selectedSet.has(i);
+
+                const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                group.classList.add("pizza-slice");
+                if (isSelected) group.classList.add("selected");
+
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                let d = `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2} Z`;
+                path.setAttribute("d", d);
+
+                if (isSelected) {
+                    path.setAttribute("fill", "#F87171");
+                    path.setAttribute("stroke", "#EF4444");
+                    path.setAttribute("stroke-width", "2.5");
+                } else {
+                    path.setAttribute("fill", "#FEF3C7");
+                    path.setAttribute("stroke", "#F59E0B");
+                    path.setAttribute("stroke-width", "1.5");
+                }
+                group.appendChild(path);
+
+                // Ligne de découpe
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", cx);
+                line.setAttribute("y1", cy);
+                line.setAttribute("x2", x1);
+                line.setAttribute("y2", y1);
+                line.setAttribute("stroke", "#D97706");
+                line.setAttribute("stroke-width", total > 8 ? "2" : "3");
+                svgElement.appendChild(line);
+
+                // Garnitures
+                const midAngle = (startAngle + endAngle) / 2;
+                const toppingR1 = r * 0.58;
+                const tx1 = cx + toppingR1 * Math.cos(midAngle);
+                const ty1 = cy + toppingR1 * Math.sin(midAngle);
+
+                const pepperoni = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                pepperoni.setAttribute("cx", tx1);
+                pepperoni.setAttribute("cy", ty1);
+                const pepSize = total > 8 ? "5" : (isSelected ? "9" : "6");
+                pepperoni.setAttribute("r", pepSize);
+                pepperoni.setAttribute("fill", isSelected ? "#B91C1C" : "#D97706");
+                pepperoni.setAttribute("opacity", isSelected ? "0.95" : "0.5");
+                group.appendChild(pepperoni);
+
+                if (total <= 6) {
+                    const toppingR2 = r * 0.32;
+                    const tx2 = cx + toppingR2 * Math.cos(midAngle + 0.1);
+                    const ty2 = cy + toppingR2 * Math.sin(midAngle + 0.1);
+                    const basil = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    basil.setAttribute("cx", tx2);
+                    basil.setAttribute("cy", ty2);
+                    basil.setAttribute("r", isSelected ? "5" : "3");
+                    basil.setAttribute("fill", isSelected ? "#15803D" : "#84CC16");
+                    basil.setAttribute("opacity", isSelected ? "0.9" : "0.4");
+                    group.appendChild(basil);
+                }
+
+                if (onSliceClick) {
+                    group.onclick = () => onSliceClick(i);
+                }
+
+                svgElement.appendChild(group);
+            }
+
+            // Bouton du centre
+            const centerCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            centerCircle.setAttribute("cx", cx);
+            centerCircle.setAttribute("cy", cy);
+            centerCircle.setAttribute("r", 8);
+            centerCircle.setAttribute("fill", "#B45309");
+            svgElement.appendChild(centerCircle);
+        }
+
+        function setPizzaSlices(num) {
+            playSound('click');
+            totalSlices = num;
+            selectedSlices.clear();
+            selectedSlices.add(0);
+
+            const buttons = document.querySelectorAll('.slice-count-btn');
+            buttons.forEach(btn => {
+                if (btn.innerText.includes(num.toString())) {
+                    btn.className = "slice-count-btn bg-amber-500 border-2 border-amber-600 text-white shadow-md p-1.5 rounded-xl font-bold text-center active:scale-95 transition";
+                    btn.querySelector('span').className = "text-[10px] block text-amber-100 font-semibold";
+                } else {
+                    btn.className = "slice-count-btn bg-amber-50 border-2 border-amber-300 text-amber-900 hover:bg-amber-100 p-1.5 rounded-xl font-bold text-center active:scale-95 transition";
+                    btn.querySelector('span').className = "text-[10px] block text-slate-500 font-semibold";
+                }
+            });
+
+            updateDiscoveryView();
+        }
+
+        function toggleSliceSelection(index) {
+            playSound('click');
+            if (selectedSlices.has(index)) {
+                selectedSlices.delete(index);
+            } else {
+                selectedSlices.add(index);
+            }
+            updateDiscoveryView();
+        }
+
+        function selectAllSlices() {
+            playSound('click');
+            for (let i = 0; i < totalSlices; i++) {
+                selectedSlices.add(i);
+            }
+            updateDiscoveryView();
+        }
+
+        function clearSlices() {
+            playSound('click');
+            selectedSlices.clear();
+            updateDiscoveryView();
+        }
+
+        function updateDiscoveryView() {
+            const svg = document.getElementById('pizza-svg');
+            renderPizzaSVG(svg, totalSlices, selectedSlices, toggleSliceSelection);
+
+            const count = selectedSlices.size;
+            document.getElementById('num-display').innerText = count;
+            document.getElementById('den-display').innerText = totalSlices;
+
+            document.getElementById('explain-num').innerText = count;
+            document.getElementById('explain-den').innerText = totalSlices;
+
+            const wordsEl = document.getElementById('fraction-words');
+            const percentEl = document.getElementById('fraction-percent');
+
+            if (count === 0) {
+                wordsEl.innerText = "Zéro part (0)";
+                percentEl.innerText = "(Aucune part sélectionnée)";
+            } else if (fractionNames[totalSlices] && fractionNames[totalSlices][count]) {
+                wordsEl.innerText = fractionNames[totalSlices][count];
+                percentEl.innerText = `(${count} part${count > 1 ? 's' : ''} sur ${totalSlices})`;
+            } else {
+                wordsEl.innerText = `${count} ${totalSlices}ièmes`;
+                percentEl.innerText = `(${count} part${count > 1 ? 's' : ''} sur ${totalSlices})`;
+            }
+        }
+
+        const questionsByDifficulty = {
+            easy: [
+                {
+                    type: 'interactive',
+                    avatar: '👦',
+                    instruction: '« Bonjour Chef ! Je voudrais <span class="text-amber-600 font-black text-xl">3/4</span> (trois quarts) de cette pizza s\'il vous plaît ! »',
+                    total: 4,
+                    targetNumerator: 3,
+                    explanation: 'Pour 3/4, la pizza est coupée en 4 parts égales et tu dois en garnir 3.'
+                },
+                {
+                    type: 'interactive',
+                    avatar: '👩‍🦰',
+                    instruction: '« Miam ! Pourriez-vous me préparer <span class="text-amber-600 font-black text-xl">1/2</span> (un demi) de la pizza ? »',
+                    total: 2,
+                    targetNumerator: 1,
+                    explanation: 'Un demi (1/2), c\'est la moitié exacte de la pizza : 1 part sur les 2 !'
+                },
+                {
+                    type: 'choice',
+                    avatar: '👮‍♂️',
+                    instruction: '« Regarde ma pizza ci-dessous ! Quelle fraction représente la partie garnie en rouge ? »',
+                    total: 4,
+                    preSelected: [0],
+                    choices: ['1/4', '2/4', '3/4'],
+                    correctChoice: '1/4',
+                    explanation: 'Il y a 1 part rouge sur un total de 4 parts : c\'est un quart (1/4).'
+                },
+                {
+                    type: 'interactive',
+                    avatar: '👴',
+                    instruction: '« J\'ai très faim ! Préparez-moi <span class="text-amber-600 font-black text-xl">2/3</span> (deux tiers) de votre délicieuse pizza ! »',
+                    total: 3,
+                    targetNumerator: 2,
+                    explanation: 'Deux tiers (2/3) : la pizza a 3 parts égales, et tu en garnis 2.'
+                },
+                {
+                    type: 'choice',
+                    avatar: '🧒',
+                    instruction: '« Mon amie a mangé <span class="text-amber-600 font-black text-lg">2/4</span> de la pizza. À quoi cela équivaut-il ? »',
+                    total: 4,
+                    preSelected: [0, 1],
+                    choices: ['Un tiers (1/3)', 'La moitié (1/2)', 'Toute la pizza (4/4)'],
+                    correctChoice: 'La moitié (1/2)',
+                    explanation: 'Bravo ! 2 parts sur 4, c\'est exactement la moitié de la pizza !'
+                }
+            ],
+            medium: [
+                {
+                    type: 'interactive',
+                    avatar: '🧑‍🍳',
+                    instruction: '« Commande pour la table 4 : nous voulons <span class="text-amber-600 font-black text-xl">5/8</span> (cinq huitièmes) de pizza garnie ! »',
+                    total: 8,
+                    targetNumerator: 5,
+                    explanation: 'La pizza a 8 parts égales. Sélectionner 5 parts donne exactement cinq huitièmes (5/8).'
+                },
+                {
+                    type: 'choice',
+                    avatar: '👩‍🏫',
+                    instruction: '« Si nous coupons cette pizza en 6 parts et que <strong>3 parts</strong> sont mangées, quelle fraction cela représente-t-il ? »',
+                    total: 6,
+                    preSelected: [0, 1, 2],
+                    choices: ['3/6 (la moitié)', '2/6', '4/6'],
+                    correctChoice: '3/6 (la moitié)',
+                    explanation: '3 parts sur 6, c\'est 3/6 ! Et comme 3 est la moitié de 6, c\'est aussi 1/2.'
+                },
+                {
+                    type: 'interactive',
+                    avatar: '🚴‍♂️',
+                    instruction: '« J\'ai besoin de forces après ma course ! Garnis-moi <span class="text-amber-600 font-black text-xl">4/6</span> (quatre sixièmes) de pizza ! »',
+                    total: 6,
+                    targetNumerator: 4,
+                    explanation: 'Tu as sélectionné 4 parts sur les 6 parts disponibles (4/6).'
+                },
+                {
+                    type: 'choice',
+                    avatar: '🧐',
+                    instruction: '« Si un client mange <span class="text-amber-600 font-black text-lg">3/8</span> de sa pizza, combien lui reste-t-il de parts pour finir la pizza ? »',
+                    total: 8,
+                    preSelected: [0, 1, 2],
+                    choices: ['3 parts (3/8)', '4 parts (4/8)', '5 parts (5/8)'],
+                    correctChoice: '5 parts (5/8)',
+                    explanation: 'Exact ! 8 parts au total - 3 parts mangées = 5 parts restantes (5/8).'
+                },
+                {
+                    type: 'interactive',
+                    avatar: '👧',
+                    instruction: '« Je partage ma pizza en 5 parts et je veux en servir <span class="text-amber-600 font-black text-xl">3/5</span> (trois cinquièmes) ! »',
+                    total: 5,
+                    targetNumerator: 3,
+                    explanation: 'Superbe ! 3 parts sur 5 parts égales font bien trois cinquièmes (3/5).'
+                }
+            ],
+            hard: [
+                {
+                    type: 'interactive',
+                    avatar: '👑',
+                    instruction: '« <em>Défi Équivalence :</em> Je veux <strong>la moitié</strong> d\'une pizza découpée en 10 parts égales. Sélectionne la bonne quantité ! »',
+                    total: 10,
+                    targetNumerator: 5,
+                    explanation: 'Magnifique déduction ! La moitié de 10 parts, c\'est 5 parts. Donc 5/10 = 1/2 !'
+                },
+                {
+                    type: 'choice',
+                    avatar: '🔬',
+                    instruction: '« Quelle fraction est la plus <strong>GRANDE</strong> : <span class="text-amber-600 font-black">1/2</span> ou <span class="text-amber-600 font-black">1/8</span> d\'une même pizza ? »',
+                    total: 8,
+                    preSelected: [0],
+                    choices: ['1/2 est plus grand', '1/8 est plus grand', 'Elles sont égales'],
+                    correctChoice: '1/2 est plus grand',
+                    explanation: 'Excellente observation ! Plus on découpe une pizza en nombreuses parts, plus chaque part est petite : 1/2 est bien plus grand que 1/8 !'
+                },
+                {
+                    type: 'interactive',
+                    avatar: '🕵️',
+                    instruction: '« <em>Énigme du reste :</em> Je veux qu\'il ne reste que <strong>2 parts non garnies</strong> sur cette pizza de 8 parts. Garnis les parts demandées ! »',
+                    total: 8,
+                    targetNumerator: 6,
+                    explanation: 'Astucieux ! S\'il doit rester 2 parts non garnies sur 8, tu devais en garnir 6 (6/8 + 2/8 = 8/8).'
+                },
+                {
+                    type: 'choice',
+                    avatar: '🎩',
+                    instruction: '« Laquelle de ces fractions correspond à <strong>toute la pizza entière</strong> (l\'unité 1) ? »',
+                    total: 10,
+                    preSelected: [0,1,2,3,4,5,6,7,8,9],
+                    choices: ['10/10', '1/10', '5/10'],
+                    correctChoice: '10/10',
+                    explanation: 'Quand le numérateur est égal au dénominateur (comme 10/10, 4/4 ou 8/8), on a la pizza complète (l\'unité 1) !'
+                },
+                {
+                    type: 'interactive',
+                    avatar: '🏆',
+                    instruction: '« Pour le grand banquet, nous préparons <span class="text-amber-600 font-black text-xl">7/10</span> (sept dixièmes) de cette pizza géante ! »',
+                    total: 10,
+                    targetNumerator: 7,
+                    explanation: 'Bravo ! 7 parts garnies sur un total de 10 parts égales font sept dixièmes (7/10).'
+                }
+            ],
+            legend: [
+                {
+                    type: 'multi-pizza',
+                    avatar: '⭐',
+                    instruction: '« Grand banquet : Je commande <span class="text-red-600 font-black text-2xl">5/4</span> (cinq quarts) de pizza ! Remplis les 2 pizzas pour obtenir exactement 5 parts de quarts ! »',
+                    totalPerPizza: 4,
+                    targetNumerator: 5,
+                    explanation: '5/4 c\'est 4/4 (une pizza complète) + 1/4 (1 part sur la deuxième pizza) = 5 quarts en tout !'
+                },
+                {
+                    type: 'choice',
+                    avatar: '🧠',
+                    instruction: '« Défi page 4 : Combien font <span class="text-red-600 font-black text-xl">9/3 - 3/3</span> ? »',
+                    total: 3,
+                    choices: ['6/3 (soit 2 pizzas complètes)', '6/0', '12/3'],
+                    correctChoice: '6/3 (soit 2 pizzas complètes)',
+                    explanation: '9/3 - 3/3 = 6/3 ! Et 6 divisé par 3 fait exactement 2 pizzas entières !'
+                },
+                {
+                    type: 'multi-pizza',
+                    avatar: '🦖',
+                    instruction: '« Mon appétit d\'ogre réclame <span class="text-red-600 font-black text-2xl">7/4</span> de pizza ! Garnis la première et la deuxième pizza pour avoir 7 parts ! »',
+                    totalPerPizza: 4,
+                    targetNumerator: 7,
+                    explanation: '7/4 équivaut à 1 pizza entière (4/4) plus 3 quarts supplémentaires (3/4) !'
+                },
+                {
+                    type: 'choice',
+                    avatar: '🧐',
+                    instruction: '« Calcule : <span class="text-red-600 font-black text-xl">6/2 + 8/2</span> (modèle page 4 i) : »',
+                    total: 2,
+                    choices: ['14/2 (soit 7 pizzas)', '14/4', '2/2'],
+                    correctChoice: '14/2 (soit 7 pizzas)',
+                    explanation: '6/2 + 8/2 = (6 + 8)/2 = 14/2 ! Cela donne 7 pizzas entières !'
+                },
+                {
+                    type: 'multi-pizza',
+                    avatar: '🍕',
+                    instruction: '« Commande Royale : Prépare exactement <span class="text-red-600 font-black text-2xl">3/2</span> (trois demis) de pizza ! »',
+                    totalPerPizza: 2,
+                    targetNumerator: 3,
+                    explanation: '3/2 c\'est une pizza entière (2/2) et encore la moitié d\'une autre (1/2) !'
+                }
+            ]
+        };
+
+        let currentDifficulty = 'legend';
+        let currentQuestionIndex = 0;
+        let gameScore = 0;
+        let gameStarted = false;
+        let gameSelectedSlices = new Set();
+        let gameSelectedSlices2 = new Set();
+
+        function changeDifficulty(diff) {
+            playSound('click');
+            currentDifficulty = diff;
+            currentQuestionIndex = 0;
+            gameScore = 0;
+            document.getElementById('game-score').innerText = '0 pt';
+
+            ['easy', 'medium', 'hard', 'legend'].forEach(d => {
+                const btn = document.getElementById('lvl-btn-' + d);
+                if (btn) {
+                    if (d === diff) {
+                        btn.className = d === 'legend' ? "px-3 py-1.5 rounded-xl bg-red-600 text-white shadow-sm transition" : "px-3 py-1.5 rounded-xl bg-amber-500 text-white shadow-sm transition";
+                    } else {
+                        btn.className = "px-3 py-1.5 rounded-xl text-slate-600 hover:text-amber-700 transition";
+                    }
+                }
+            });
+
+            const diffLabels = {
+                easy: 'Facile 🌱',
+                medium: 'Moyen ⚡',
+                hard: 'Défi Expert 🔥',
+                legend: 'Maître Étoilé 👑'
+            };
+            document.getElementById('badge-difficulty-tag').innerText = diffLabels[diff];
+
+            document.getElementById('game-end-screen').classList.add('hidden');
+            document.getElementById('game-card').classList.remove('hidden');
+
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const list = questionsByDifficulty[currentDifficulty];
+            const q = list[currentQuestionIndex];
+            
+            document.getElementById('customer-avatar').innerText = q.avatar;
+            document.getElementById('game-instruction').innerHTML = q.instruction;
+            document.getElementById('game-question-num').innerText = `${currentQuestionIndex + 1} / ${list.length}`;
+            
+            const feedbackEl = document.getElementById('game-feedback');
+            feedbackEl.classList.add('hidden');
+            feedbackEl.innerText = '';
+            
+            const btnValidate = document.getElementById('btn-validate-slice');
+            const btnNext = document.getElementById('btn-next-order');
+            btnNext.classList.add('hidden');
+
+            const choicesContainer = document.getElementById('game-choices-container');
+            const pizzaSvg = document.getElementById('game-pizza-svg');
+            const pizzaSvg2Wrapper = document.getElementById('game-pizza-svg2-wrapper');
+            const pizzaSvg2 = document.getElementById('game-pizza-svg2');
+
+            gameSelectedSlices.clear();
+            gameSelectedSlices2.clear();
+
+            if (q.type === 'interactive') {
+                pizzaSvg2Wrapper.classList.add('hidden');
+                btnValidate.classList.remove('hidden');
+                choicesContainer.classList.add('hidden');
+                
+                function updateGamePizza() {
+                    renderPizzaSVG(pizzaSvg, q.total, gameSelectedSlices, (index) => {
+                        playSound('click');
+                        if (gameSelectedSlices.has(index)) {
+                            gameSelectedSlices.delete(index);
+                        } else {
+                            gameSelectedSlices.add(index);
+                        }
+                        updateGamePizza();
+                    });
+                }
+
+                updateGamePizza();
+
+            } else if (q.type === 'multi-pizza') {
+                pizzaSvg2Wrapper.classList.remove('hidden');
+                btnValidate.classList.remove('hidden');
+                choicesContainer.classList.add('hidden');
+
+                function updateMultiPizzas() {
+                    renderPizzaSVG(pizzaSvg, q.totalPerPizza, gameSelectedSlices, (index) => {
+                        playSound('click');
+                        if (gameSelectedSlices.has(index)) gameSelectedSlices.delete(index);
+                        else gameSelectedSlices.add(index);
+                        updateMultiPizzas();
+                    });
+
+                    renderPizzaSVG(pizzaSvg2, q.totalPerPizza, gameSelectedSlices2, (index) => {
+                        playSound('click');
+                        if (gameSelectedSlices2.has(index)) gameSelectedSlices2.delete(index);
+                        else gameSelectedSlices2.add(index);
+                        updateMultiPizzas();
+                    });
+                }
+
+                updateMultiPizzas();
+
+            } else if (q.type === 'choice') {
+                pizzaSvg2Wrapper.classList.add('hidden');
+                btnValidate.classList.add('hidden');
+                choicesContainer.classList.remove('hidden');
+                choicesContainer.innerHTML = '';
+
+                const preSet = new Set(q.preSelected || []);
+                renderPizzaSVG(pizzaSvg, q.total, preSet, null);
+
+                q.choices.forEach(choice => {
+                    const btn = document.createElement('button');
+                    btn.className = "bg-amber-50 hover:bg-amber-100 border-2 border-amber-300 text-amber-900 font-black text-base py-3 px-4 rounded-2xl shadow-sm transition active:scale-95 text-center";
+                    btn.innerHTML = choice;
+                    btn.onclick = () => validateChoice(choice, btn);
+                    choicesContainer.appendChild(btn);
+                });
+            }
+        }
+
+        function validateSliceOrder() {
+            const list = questionsByDifficulty[currentDifficulty];
+            const q = list[currentQuestionIndex];
+            const feedbackEl = document.getElementById('game-feedback');
+            const btnValidate = document.getElementById('btn-validate-slice');
+            const btnNext = document.getElementById('btn-next-order');
+
+            feedbackEl.classList.remove('hidden');
+
+            const totalChosen = q.type === 'multi-pizza' ? (gameSelectedSlices.size + gameSelectedSlices2.size) : gameSelectedSlices.size;
+
+            if (totalChosen === q.targetNumerator) {
+                playSound('correct');
+                confetti({ particleCount: 75, spread: 65, origin: { y: 0.6 } });
+                gameScore += 1;
+                document.getElementById('game-score').innerText = `${gameScore} pt${gameScore > 1 ? 's' : ''}`;
+
+                feedbackEl.className = "mt-4 p-4 rounded-2xl text-center font-bold text-sm bg-emerald-100 text-emerald-800 border-2 border-emerald-300 bounce-in";
+                feedbackEl.innerHTML = `🎉 <strong>Parfaitement dosé !</strong> Tu as garni exactement ${q.targetNumerator} parts ! ${q.explanation}`;
+
+                btnValidate.classList.add('hidden');
+                btnNext.classList.remove('hidden');
+            } else {
+                playSound('wrong');
+                feedbackEl.className = "mt-4 p-4 rounded-2xl text-center font-bold text-sm bg-rose-100 text-rose-800 border-2 border-rose-300 bounce-in";
+                feedbackEl.innerHTML = `🧐 <strong>Presque !</strong> Tu as actuellement sélectionné ${totalChosen} part${totalChosen > 1 ? 's' : ''}, alors que la commande demande ${q.targetNumerator} parts. Ajuste tes parts et clique à nouveau sur Servir !`;
+            }
+        }
+
+        function validateSliceOrder() {
+            const list = questionsByDifficulty[currentDifficulty];
+            const q = list[currentQuestionIndex];
+            const feedbackEl = document.getElementById('game-feedback');
+            const btnValidate = document.getElementById('btn-validate-slice');
+            const btnNext = document.getElementById('btn-next-order');
+
+            feedbackEl.classList.remove('hidden');
+
+            if (gameSelectedSlices.size === q.targetNumerator) {
+                playSound('correct');
+                confetti({ particleCount: 65, spread: 55, origin: { y: 0.6 } });
+                gameScore += 1;
+                document.getElementById('game-score').innerText = `${gameScore} pt${gameScore > 1 ? 's' : ''}`;
+
+                feedbackEl.className = "mt-4 p-4 rounded-2xl text-center font-bold text-sm bg-emerald-100 text-emerald-800 border-2 border-emerald-300 bounce-in";
+                feedbackEl.innerHTML = `🎉 <strong>Parfaitement préparé !</strong> Tu as sélectionné ${q.targetNumerator} part${q.targetNumerator > 1 ? 's' : ''} sur ${q.total}. ${q.explanation}`;
+
+                btnValidate.classList.add('hidden');
+                btnNext.classList.remove('hidden');
+            } else {
+                playSound('wrong');
+                feedbackEl.className = "mt-4 p-4 rounded-2xl text-center font-bold text-sm bg-rose-100 text-rose-800 border-2 border-rose-300 bounce-in";
+                feedbackEl.innerHTML = `🧐 <strong>Oups !</strong> Tu as sélectionné ${gameSelectedSlices.size} part${gameSelectedSlices.size > 1 ? 's' : ''}, mais il en fallait ${q.targetNumerator}. Clique sur les parts pour corriger puis réessaie !`;
+            }
+        }
+
+        function validateChoice(selectedChoice, buttonElement) {
+            const list = questionsByDifficulty[currentDifficulty];
+            const q = list[currentQuestionIndex];
+            const feedbackEl = document.getElementById('game-feedback');
+            const btnNext = document.getElementById('btn-next-order');
+            const allChoiceButtons = document.querySelectorAll('#game-choices-container button');
+
+            allChoiceButtons.forEach(btn => btn.disabled = true);
+            feedbackEl.classList.remove('hidden');
+
+            if (selectedChoice === q.correctChoice) {
+                playSound('correct');
+                confetti({ particleCount: 75, spread: 65, origin: { y: 0.6 } });
+                gameScore += 1;
+                document.getElementById('game-score').innerText = `${gameScore} pt${gameScore > 1 ? 's' : ''}`;
+
+                buttonElement.classList.remove('bg-amber-50', 'border-amber-300');
+                buttonElement.classList.add('bg-emerald-500', 'text-white', 'border-emerald-600');
+
+                feedbackEl.className = "mt-4 p-4 rounded-2xl text-center font-bold text-sm bg-emerald-100 text-emerald-800 border-2 border-emerald-300 bounce-in";
+                feedbackEl.innerHTML = `🌟 <strong>Excellente réponse !</strong> ${q.explanation}`;
+            } else {
+                playSound('wrong');
+                buttonElement.classList.remove('bg-amber-50', 'border-amber-300');
+                buttonElement.classList.add('bg-rose-500', 'text-white', 'border-rose-600');
+
+                feedbackEl.className = "mt-4 p-4 rounded-2xl text-center font-bold text-sm bg-rose-100 text-rose-800 border-2 border-rose-300 bounce-in";
+                feedbackEl.innerHTML = `❌ <strong>Ce n'est pas tout à fait ça.</strong> La bonne réponse était : <strong>${q.correctChoice}</strong>. ${q.explanation}`;
+            }
+
+            btnNext.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            const list = questionsByDifficulty[currentDifficulty];
+            currentQuestionIndex++;
+            if (currentQuestionIndex < list.length) {
+                loadQuestion();
+            } else {
+                showEndScreen();
+            }
+        }
+
+        function showEndScreen() {
+            playSound('correct');
+            confetti({ particleCount: 130, spread: 85, origin: { y: 0.5 } });
+
+            const list = questionsByDifficulty[currentDifficulty];
+            document.getElementById('game-card').classList.add('hidden');
+            const endScreen = document.getElementById('game-end-screen');
+            endScreen.classList.remove('hidden');
+
+            document.getElementById('final-score-val').innerText = `${gameScore} / ${list.length}`;
+            
+            const finalMsg = document.getElementById('game-final-message');
+            const nextLvlBtn = document.getElementById('btn-next-level');
+
+            if (currentDifficulty === 'easy') {
+                nextLvlBtn.innerText = "Passer au niveau Moyen ⚡";
+                nextLvlBtn.classList.remove('hidden');
+            } else if (currentDifficulty === 'medium') {
+                nextLvlBtn.innerText = "Relever le Défi Expert 🔥";
+                nextLvlBtn.classList.remove('hidden');
+            } else {
+                nextLvlBtn.classList.add('hidden');
+            }
+
+            if (gameScore === list.length) {
+                finalMsg.innerText = "Score PARFAIT ! Tu maîtrises les fractions comme un véritable grand chef étoilé ! 🍕🎖️";
+            } else if (gameScore >= 3) {
+                finalMsg.innerText = "Très belle performance ! Les fractions n'ont presque plus aucun secret pour toi ! 👏";
+            } else {
+                finalMsg.innerText = "Bravo pour ta persévérance ! N'hésite pas à t'entraîner dans l'Atelier Découverte ! 💪";
+            }
+        }
+
+        function nextLevelOrRestart() {
+            if (currentDifficulty === 'easy') {
+                changeDifficulty('medium');
+            } else if (currentDifficulty === 'medium') {
+                changeDifficulty('hard');
+            } else {
+                restartGame();
+            }
+        }
+
+        function restartGame() {
+            playSound('click');
+            currentQuestionIndex = 0;
+            gameScore = 0;
+            document.getElementById('game-score').innerText = '0 pt';
+            document.getElementById('game-end-screen').classList.add('hidden');
+            document.getElementById('game-card').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        let evalInitialized = false;
+
+        const equivalencePairs = [
+            { id: 1, left: { num: 2, den: 4, name: "2/4" }, right: { num: 1, den: 2, name: "1/2" } },
+            { id: 2, left: { num: 2, den: 8, name: "2/8" }, right: { num: 1, den: 4, name: "1/4" } },
+            { id: 3, left: { num: 3, den: 5, name: "3/5" }, right: { num: 6, den: 10, name: "6/10" } },
+            { id: 4, left: { num: 2, den: 6, name: "2/6" }, right: { num: 1, den: 3, name: "1/3" } }
+        ];
+
+        let selectedLeftId = null;
+        let selectedRightId = null;
+        let matchedPairs = new Set();
+
+        function initEvalExercises() {
+            renderEquivalenceExercise();
+            renderCalculationSVGs();
+            renderCompareUnitCards();
+        }
+
+        function renderEquivalenceExercise() {
+            const colA = document.getElementById('col-a-cards');
+            const colB = document.getElementById('col-b-cards');
+            colA.innerHTML = '';
+            colB.innerHTML = '';
+
+            const shuffledRight = [...equivalencePairs].sort((a, b) => (a.id * 3 % 5) - (b.id * 3 % 5));
+
+            equivalencePairs.forEach(item => {
+                const isMatched = matchedPairs.has(item.id);
+                const isSelected = selectedLeftId === item.id;
+                
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-2xl border-2 flex items-center justify-between cursor-pointer transition ${
+                    isMatched ? 'bg-emerald-50 border-emerald-400 opacity-80 cursor-default' :
+                    isSelected ? 'bg-amber-100 border-amber-500 scale-[1.02] shadow-md' :
+                    'bg-slate-50 border-slate-200 hover:border-amber-400 hover:bg-amber-50/50'
+                }`;
+                card.onclick = () => {
+                    if (isMatched) return;
+                    playSound('click');
+                    selectedLeftId = isSelected ? null : item.id;
+                    renderEquivalenceExercise();
+                    checkPairMatch();
+                };
+
+                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                svg.setAttribute("viewBox", "0 0 320 320");
+                svg.setAttribute("class", "w-14 h-14 flex-shrink-0");
+                const sel = new Set([...Array(item.left.num).keys()]);
+                renderPizzaSVG(svg, item.left.den, sel, null);
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-black text-slate-400">#${item.id}</span>
+                        <div class="font-black text-lg text-slate-800">${item.left.name}</div>
+                    </div>
+                `;
+                card.appendChild(svg);
+                colA.appendChild(card);
+            });
+
+            shuffledRight.forEach(item => {
+                const isMatched = matchedPairs.has(item.id);
+                const isSelected = selectedRightId === item.id;
+
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-2xl border-2 flex items-center justify-between cursor-pointer transition ${
+                    isMatched ? 'bg-emerald-50 border-emerald-400 opacity-80 cursor-default' :
+                    isSelected ? 'bg-orange-100 border-orange-500 scale-[1.02] shadow-md' :
+                    'bg-slate-50 border-slate-200 hover:border-orange-400 hover:bg-orange-50/50'
+                }`;
+                card.onclick = () => {
+                    if (isMatched) return;
+                    playSound('click');
+                    selectedRightId = isSelected ? null : item.id;
+                    renderEquivalenceExercise();
+                    checkPairMatch();
+                };
+
+                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                svg.setAttribute("viewBox", "0 0 320 320");
+                svg.setAttribute("class", "w-14 h-14 flex-shrink-0");
+                const sel = new Set([...Array(item.right.num).keys()]);
+                renderPizzaSVG(svg, item.right.den, sel, null);
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="font-black text-lg text-slate-800">${item.right.name}</div>
+                    </div>
+                `;
+                card.appendChild(svg);
+                colB.appendChild(card);
+            });
+
+            document.getElementById('equiv-score-badge').innerText = `${matchedPairs.size} / ${equivalencePairs.length} paires trouvées`;
+        }
+
+        function checkPairMatch() {
+            if (selectedLeftId !== null && selectedRightId !== null) {
+                const feedbackEl = document.getElementById('equiv-feedback');
+                feedbackEl.classList.remove('hidden');
+
+                if (selectedLeftId === selectedRightId) {
+                    playSound('correct');
+                    matchedPairs.add(selectedLeftId);
+                    confetti({ particleCount: 50, spread: 45, origin: { y: 0.7 } });
+                    feedbackEl.className = "mt-4 p-3 rounded-2xl text-center font-bold text-sm bg-emerald-100 text-emerald-800 border-2 border-emerald-300 bounce-in";
+                    feedbackEl.innerHTML = `🎉 <strong>Bravo !</strong> Ces deux fractions représentent exactement la même quantité de pizza !`;
+                } else {
+                    playSound('wrong');
+                    feedbackEl.className = "mt-4 p-3 rounded-2xl text-center font-bold text-sm bg-rose-100 text-rose-800 border-2 border-rose-300 bounce-in";
+                    feedbackEl.innerHTML = `🧐 Regarde bien la quantité colorée : ces deux fractions ne sont pas égales. Réessaie !`;
+                }
+
+                selectedLeftId = null;
+                selectedRightId = null;
+                setTimeout(() => {
+                    renderEquivalenceExercise();
+                }, 700);
+            }
+        }
+
+        function renderCalculationSVGs() {
+            const addSvg = document.getElementById('calc-svg-add');
+            renderPizzaSVG(addSvg, 6, new Set([0, 1, 2, 3, 4]), null);
+
+            const subSvg = document.getElementById('calc-svg-sub');
+            renderPizzaSVG(subSvg, 10, new Set([0, 1, 2, 3, 4]), null);
+        }
+
+        function checkCalcProblem(type) {
+            if (type === 'add') {
+                const num = parseInt(document.getElementById('calc-add-num').value);
+                const den = parseInt(document.getElementById('calc-add-den').value);
+                const fb = document.getElementById('feedback-calc-add');
+                fb.classList.remove('hidden');
+
+                if (num === 5 && den === 6) {
+                    playSound('correct');
+                    confetti({ particleCount: 45, spread: 50, origin: { y: 0.6 } });
+                    fb.className = "text-xs font-bold text-center py-1 text-emerald-700 bg-emerald-100 rounded-lg";
+                    fb.innerHTML = "✨ Excellent ! 2/6 + 3/6 = 5/6 (2 parts + 3 parts = 5 parts sur 6).";
+                } else {
+                    playSound('wrong');
+                    fb.className = "text-xs font-bold text-center py-1 text-rose-700 bg-rose-100 rounded-lg";
+                    fb.innerHTML = "❌ Oups ! 2 + 3 font 5 parts, et le dénominateur reste 6 parts (5/6).";
+                }
+            } else if (type === 'sub') {
+                const num = parseInt(document.getElementById('calc-sub-num').value);
+                const den = parseInt(document.getElementById('calc-sub-den').value);
+                const fb = document.getElementById('feedback-calc-sub');
+                fb.classList.remove('hidden');
+
+                if (num === 5 && den === 10) {
+                    playSound('correct');
+                    confetti({ particleCount: 45, spread: 50, origin: { y: 0.6 } });
+                    fb.className = "text-xs font-bold text-center py-1 text-emerald-700 bg-emerald-100 rounded-lg";
+                    fb.innerHTML = "✨ Parfait ! 7/10 - 2/10 = 5/10 (soit la moitié 1/2 de la pizza !).";
+                } else {
+                    playSound('wrong');
+                    fb.className = "text-xs font-bold text-center py-1 text-rose-700 bg-rose-100 rounded-lg";
+                    fb.innerHTML = "❌ Oups ! 7 - 2 = 5 parts restantes sur les 10 au départ (5/10).";
+                }
+            }
+        }
+
+        const compareItems = [
+            { num: 3, den: 6, answer: '<', label: '3/6' },
+            { num: 4, den: 4, answer: '=', label: '4/4' },
+            { num: 10, den: 10, answer: '=', label: '10/10' },
+            { num: 5, den: 8, answer: '<', label: '5/8' },
+            { num: 7, den: 4, answer: '>', label: '7/4' },
+            { num: 9, den: 3, answer: '>', label: '9/3' }
+        ];
+
+        function renderCompareUnitCards() {
+            const container = document.getElementById('compare-unit-cards');
+            container.innerHTML = '';
+
+            compareItems.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 flex flex-col items-center gap-3 shadow-sm";
+
+                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                svg.setAttribute("viewBox", "0 0 320 320");
+                svg.setAttribute("class", "w-20 h-20");
+                const sel = new Set([...Array(Math.min(item.num, item.den)).keys()]);
+                renderPizzaSVG(svg, item.den, sel, null);
+
+                card.appendChild(svg);
+                card.innerHTML += `
+                    <div class="flex items-center gap-2 font-black text-base">
+                        <span class="text-amber-800">${item.label}</span>
+                        <select id="compare-select-${idx}" class="border-2 border-slate-300 rounded-xl px-2 py-1 font-black bg-white text-sm focus:border-amber-500">
+                            <option value="">?</option>
+                            <option value="<">&lt; (plus petit)</option>
+                            <option value="=">= (égal)</option>
+                            <option value=">">&gt; (plus grand)</option>
+                        </select>
+                        <span class="text-slate-800 font-black text-base">1</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function checkCompareUnitAnswers() {
+            let correctCount = 0;
+            const fb = document.getElementById('compare-unit-feedback');
+            fb.classList.remove('hidden');
+
+            compareItems.forEach((item, idx) => {
+                const select = document.getElementById(`compare-select-${idx}`);
+                if (select.value === item.answer) {
+                    correctCount++;
+                    select.classList.remove('border-rose-400', 'bg-rose-50');
+                    select.classList.add('border-emerald-400', 'bg-emerald-50');
+                } else {
+                    select.classList.remove('border-emerald-400', 'bg-emerald-50');
+                    select.classList.add('border-rose-400', 'bg-rose-50');
+                }
+            });
+
+            if (correctCount === compareItems.length) {
+                playSound('correct');
+                confetti({ particleCount: 70, spread: 60, origin: { y: 0.8 } });
+                fb.className = "mt-3 p-3 rounded-2xl text-center font-bold text-sm bg-emerald-100 text-emerald-800 border-2 border-emerald-300 bounce-in";
+                fb.innerHTML = `🌟 <strong>Fantastique ! ${correctCount}/${compareItems.length} bonnes réponses !</strong> Tu as maîtrisé les 3 cas : fraction inférieure à 1 (&lt;), égale à 1 (=) et supérieure à 1 (&gt;).`;
+            } else {
+                playSound('wrong');
+                fb.className = "mt-3 p-3 rounded-2xl text-center font-bold text-sm bg-rose-100 text-rose-800 border-2 border-rose-300 bounce-in";
+                fb.innerHTML = `Tu as ${correctCount} / ${compareItems.length} réponses exactes. Rappel : Si numérateur &gt; dénominateur (ex: 7/4 ou 9/3), la fraction est plus grande que 1 (&gt; 1) !`;
+            }
+        }
+
+        /* ================= MODE TOP CHEF / DÉFIS DE CALCULS DU BILAN ================= */
+        let topChefInitialized = false;
+        let streak = 0;
+        let topChefScore = 0;
+        let currentProblem = null;
+
+        const advancedCalculations = [
+            { op: '+', n1: 2, n2: 5, den: 6, label: "Page 4 a) : 2/6 + 5/6", ansN: 7, ansD: 6, explain: "2 + 5 = 7 sixièmes (7/6). C'est plus qu'une pizza entière !" },
+            { op: '-', n1: 7, n2: 2, den: 10, label: "Page 4 b) : 7/10 - 2/10", ansN: 5, ansD: 10, explain: "7 - 2 = 5 dixièmes (5/10), soit exactement 1/2 !" },
+            { op: '+', n1: 2, n2: 3, den: 4, label: "Page 4 c) : 2/4 + 3/4", ansN: 5, ansD: 4, explain: "2 + 3 = 5 quarts (5/4), soit 1 pizza entière et 1 quart restant !" },
+            { op: '+', n1: 5, n2: 3, den: 8, label: "Page 4 d) : 5/8 + 3/8", ansN: 8, ansD: 8, explain: "5 + 3 = 8 huitièmes (8/8) = 1 pizza complète !" },
+            { op: '-', n1: 9, n2: 3, den: 3, label: "Page 4 c) : 9/3 - 3/3", ansN: 6, ansD: 3, explain: "9 - 3 = 6 tiers (6/3). Et 6 divisé par 3 = 2 pizzas entières !" },
+            { op: '+', n1: 5, n2: 2, den: 9, label: "Page 4 a) : 5/9 + 2/9", ansN: 7, ansD: 9, explain: "5 + 2 = 7 parts de neuvièmes (7/9)." },
+            { op: '-', n1: 5, n2: 4, den: 4, label: "Page 4 d) : 5/4 - 4/4", ansN: 1, ansD: 4, explain: "5 - 4 = 1 quart (1/4)." },
+            { op: '+', n1: 6, n2: 2, den: 7, label: "Page 4 e) : 6/7 + 2/7", ansN: 8, ansD: 7, explain: "6 + 2 = 8 septièmes (8/7)." },
+            { op: '-', n1: 7, n2: 3, den: 2, label: "Page 4 h) : 7/2 - 3/2", ansN: 4, ansD: 2, explain: "7 - 3 = 4 demis (4/2), soit 2 pizzas entières !" },
+            { op: '+', n1: 6, n2: 8, den: 2, label: "Page 4 i) : 6/2 + 8/2", ansN: 14, ansD: 2, explain: "6 + 8 = 14 demis (14/2), soit 7 pizzas entières !" }
+        ];
+
+        let topChefIndex = 0;
+
+        function initTopChef() {
+            topChefIndex = 0;
+            streak = 0;
+            topChefScore = 0;
+            newTopChefQuestion();
+        }
+
+        function newTopChefQuestion() {
+            currentProblem = advancedCalculations[topChefIndex % advancedCalculations.length];
+            topChefIndex++;
+
+            document.getElementById('topchef-step-badge').innerText = `Question ${topChefIndex} • ${currentProblem.label}`;
+            
+            const expr = document.getElementById('topchef-expression');
+            expr.innerHTML = `
+                <div class="inline-flex flex-col items-center">
+                    <span class="text-rose-600">${currentProblem.n1}</span>
+                    <span class="h-0.5 w-7 bg-slate-800"></span>
+                    <span>${currentProblem.den}</span>
+                </div>
+                <span>${currentProblem.op}</span>
+                <div class="inline-flex flex-col items-center">
+                    <span class="text-rose-600">${currentProblem.n2}</span>
+                    <span class="h-0.5 w-7 bg-slate-800"></span>
+                    <span>${currentProblem.den}</span>
+                </div>
+            `;
+
+            // Rendu visuel d'accompagnement
+            const visual = document.getElementById('topchef-visual');
+            visual.innerHTML = '';
+            const svg1 = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg1.setAttribute("viewBox", "0 0 320 320");
+            svg1.setAttribute("class", "w-20 h-20");
+            renderPizzaSVG(svg1, currentProblem.den, new Set([...Array(Math.min(currentProblem.n1, currentProblem.den)).keys()]), null);
+            visual.appendChild(svg1);
+
+            const opSpan = document.createElement('span');
+            opSpan.className = "text-xl font-black text-rose-500";
+            opSpan.innerText = currentProblem.op;
+            visual.appendChild(opSpan);
+
+            const svg2 = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg2.setAttribute("viewBox", "0 0 320 320");
+            svg2.setAttribute("class", "w-20 h-20");
+            renderPizzaSVG(svg2, currentProblem.den, new Set([...Array(Math.min(currentProblem.n2, currentProblem.den)).keys()]), null);
+            visual.appendChild(svg2);
+
+            document.getElementById('topchef-input-num').value = '';
+            document.getElementById('topchef-input-den').value = currentProblem.den;
+            const fb = document.getElementById('topchef-feedback');
+            fb.classList.add('hidden');
+        }
+
+        function checkTopChefAnswer() {
+            const inNum = parseInt(document.getElementById('topchef-input-num').value);
+            const inDen = parseInt(document.getElementById('topchef-input-den').value);
+            const fb = document.getElementById('topchef-feedback');
+            fb.classList.remove('hidden');
+
+            if (inNum === currentProblem.ansN && inDen === currentProblem.ansD) {
+                playSound('correct');
+                streak++;
+                topChefScore += 10 + (streak * 2);
+                confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+
+                document.getElementById('streak-counter').innerText = `${streak} 🔥`;
+                document.getElementById('topchef-score').innerText = `${topChefScore} pt${topChefScore > 1 ? 's' : ''}`;
+
+                fb.className = "mt-4 p-4 rounded-2xl text-center font-bold text-sm bg-emerald-100 text-emerald-800 border-2 border-emerald-300 bounce-in";
+                fb.innerHTML = `🎉 <strong>Excellent calcul !</strong> ${inNum}/${inDen}. ${currentProblem.explain}`;
+
+                setTimeout(() => {
+                    newTopChefQuestion();
+                }, 1800);
+            } else {
+                playSound('wrong');
+                streak = 0;
+                document.getElementById('streak-counter').innerText = `0 🔥`;
+                fb.className = "mt-4 p-4 rounded-2xl text-center font-bold text-sm bg-rose-100 text-rose-800 border-2 border-rose-300 bounce-in";
+                fb.innerHTML = `🧐 <strong>Attention !</strong> Le dénominateur reste <strong>${currentProblem.den}</strong>. Calcule simplement ${currentProblem.n1} ${currentProblem.op} ${currentProblem.n2} pour le numérateur !`;
+            }
+        }
+
+        /* Initialisation au chargement */
+        window.addEventListener('DOMContentLoaded', () => {
+            updateDiscoveryView();
+        });
+    </script>
+</body>
+</html>
